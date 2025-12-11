@@ -1,73 +1,35 @@
-//
-//  ContentView.swift
-//  CupcakeCorner
-//
-//  Created by Hafizur Rahman on 10/12/25.
-//
-
 import SwiftUI
 
-struct Response: Codable {
-    var results: [Result]
-}
-
-struct Result: Codable {
-    let trackId: Int
-    let trackName: String
-    let collectionName: String
-    let artworkUrl100: String
-}
 
 struct ContentView: View {
-    @State private var results = [Result]()
+    @State private var order = Order()
     
     var body: some View {
-        List(results, id: \.trackId) { result in
-            VStack(alignment: .leading) {
-                HStack {
-                    AsyncImage(url: URL(string: result.artworkUrl100)) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .scaledToFit()
-                        } else if phase.error != nil {
-                            Text("There was an error loading the image.")
-                        } else {
-                            ProgressView()
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Select your cake type", selection: $order.type) {
+                        ForEach(Order.types.indices, id: \.self) {
+                            Text(Order.types[$0])
                         }
                     }
-                    .frame(width: 100, height: 100)
-                    .clipShape(.rect(cornerRadius: 16))
                     
-                    VStack(alignment: .leading) {
-                        Text(result.trackName).fontDesign(.monospaced)
-                        Text(result.collectionName).font(.callout.bold())
+                    Stepper("Number of cakes: \(order.quantity)", value: $order.quantity, in: 3...20)
+                }
+                
+                Section {
+                    Toggle("Special Request", isOn: $order.specialRequestEnabled)
+                    
+                    if order.specialRequestEnabled {
+                        Toggle("Add Sprinkles", isOn: $order.addSprinkles)
+                        Toggle("Add Extra Frosting", isOn: $order.extraFrosting)
                     }
                 }
             }
-        }
-        .task {
-             await fetchData()
+            .navigationTitle("Cupcake Corner")
         }
     }
     
-    func fetchData() async {
-        guard let url = URL(string: "https://itunes.apple.com/search?term=taylor+swift&entity=song") else {
-            print("Invaild URL")
-            return
-        }
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            
-            if let decodedResponse = try? JSONDecoder().decode(Response.self, from: data) {
-                results = decodedResponse.results
-            }
-            
-        } catch {
-            print("Invalid Data")
-        }
-    }
 }
 
 #Preview {
