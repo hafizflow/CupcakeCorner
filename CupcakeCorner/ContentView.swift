@@ -25,6 +25,12 @@ struct ContentView: View {
                         Toggle("Add Extra Frosting", isOn: $order.extraFrosting)
                     }
                 }
+                
+                Section {
+                    NavigationLink("Address") {
+                        AddressView(order: $order)
+                    }
+                }
             }
             .navigationTitle("Cupcake Corner")
         }
