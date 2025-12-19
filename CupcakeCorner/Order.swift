@@ -31,10 +31,7 @@ class Order: Codable {
         case _specialRequestEnabled = "specialRequestEnabled"
         case _extraFrosting = "extraFrosting"
         case _addSprinkles = "addSprinkles"
-        case _name = "name"
-        case _city = "city"
-        case _streetAddress = "streetAddress"
-        case _zip = "zip"
+        case _address = "address"
     }
     
     static var types = ["Vanila", "Strawberry", "Chocolate", "Red Velvet"]
@@ -54,38 +51,46 @@ class Order: Codable {
     var addSprinkles = false
     
     // Address
-    var name: String {
+    var address: Address {
         didSet {
-            if let encoded = try? JSONEncoder().encode(name) {
-                UserDefaults.standard.set(encoded, forKey: "name")
+            if let encoded = try? JSONEncoder().encode(address) {
+                UserDefaults.standard.set(encoded, forKey: "address")
             }
         }
     }
     
     init() {
-        if let savedName = UserDefaults.standard.data(forKey: "name") {
-            if let decoded = try? JSONDecoder().decode(String.self, from: savedName) {
-                name = decoded
+        if let saveAddress = UserDefaults.standard.data(forKey: "address") {
+            if let decoded = try? JSONDecoder().decode(Address.self, from: saveAddress) {
+                address = decoded
                 return
             }
         }
-        name = ""
+        address = Address()
     }
-    var streetAddress = "MainRoad"
-    var city = "Dhaka"
-    var zip = "1320"
+    
+    var name: String {
+        get { address.name }
+        set { address.name = newValue }
+    }
+    
+    var streetAddress: String {
+        get { address.streetAddress }
+        set { address.streetAddress = newValue }
+    }
+    
+    var city: String {
+        get { address.city }
+        set { address.city = newValue }
+    }
+    
+    var zip: String {
+        get { address.zip }
+        set { address.zip = newValue }
+    }
     
     var isValidAddress: Bool {
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedStreetAddress = streetAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedZip = zip.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        if trimmedName.isEmpty || trimmedStreetAddress.isEmpty || trimmedCity.isEmpty || trimmedZip.isEmpty {
-            return false
-        }
-        
-        return true
+        address.isValidAddress
     }
     
     var cost: Decimal {
@@ -99,7 +104,7 @@ class Order: Codable {
         if addSprinkles {
             cost += Decimal(quantity) / 2
         }
-        
+    
         return cost
     }
 }

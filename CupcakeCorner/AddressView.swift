@@ -6,10 +6,10 @@ struct AddressView: View {
     var body: some View {
         Form {
             Section {
-                TextField("Name", text: $order.name).submitLabel(.next)
-                TextField("StreetAddress", text: $order.streetAddress).submitLabel(.next)
-                TextField("City", text: $order.city).submitLabel(.next)
-                TextField("Zip", text: $order.zip).submitLabel(.done)
+                TextField("Name", text: $order.address.name).submitLabel(.next)
+                TextField("StreetAddress", text: $order.address.streetAddress).submitLabel(.next)
+                TextField("City", text: $order.address.city).submitLabel(.next)
+                TextField("Zip", text: $order.address.zip).submitLabel(.done)
             }
             
             Section {
@@ -17,7 +17,7 @@ struct AddressView: View {
                     CheckOutView(order: $order)
                 }
             }
-            .disabled(order.isValidAddress == false)
+            .disabled(order.address.isValidAddress == false)
         }
         .navigationTitle("Address")
         .navigationBarTitleDisplayMode(.inline)
