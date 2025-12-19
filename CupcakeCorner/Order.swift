@@ -1,5 +1,28 @@
 import Foundation
 
+struct EchoResponse<T: Decodable>: Decodable {
+    let body: T
+}
+
+struct Address: Codable {
+    var name = ""
+    var streetAddress = ""
+    var city = ""
+    var zip = ""
+    
+    var isValidAddress: Bool {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedStreetAddress = streetAddress.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedZip = zip.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if trimmedName.isEmpty || trimmedStreetAddress.isEmpty || trimmedCity.isEmpty || trimmedZip.isEmpty {
+            return false
+        }
+        return true
+    }
+}
+
 @Observable
 class Order: Codable {
     enum CodingKeys: String, CodingKey {
@@ -30,13 +53,35 @@ class Order: Codable {
     var extraFrosting = false
     var addSprinkles = false
     
-    var name = "Hafiz"
-    var streetAddress = "Nobinogor main road"
-    var city = "Savar"
+    // Address
+    var name: String {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(name) {
+                UserDefaults.standard.set(encoded, forKey: "name")
+            }
+        }
+    }
+    
+    init() {
+        if let savedName = UserDefaults.standard.data(forKey: "name") {
+            if let decoded = try? JSONDecoder().decode(String.self, from: savedName) {
+                name = decoded
+                return
+            }
+        }
+        name = ""
+    }
+    var streetAddress = "MainRoad"
+    var city = "Dhaka"
     var zip = "1320"
     
     var isValidAddress: Bool {
-        if name.isEmpty || streetAddress.isEmpty || city.isEmpty || zip.isEmpty {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedStreetAddress = streetAddress.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedZip = zip.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if trimmedName.isEmpty || trimmedStreetAddress.isEmpty || trimmedCity.isEmpty || trimmedZip.isEmpty {
             return false
         }
         

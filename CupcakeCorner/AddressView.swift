@@ -7,9 +7,9 @@ struct AddressView: View {
         Form {
             Section {
                 TextField("Name", text: $order.name).submitLabel(.next)
-                TextField("StreetAddress", text: $order.streetAddress)
-                TextField("City", text: $order.city)
-                TextField("Zip", text: $order.zip)
+                TextField("StreetAddress", text: $order.streetAddress).submitLabel(.next)
+                TextField("City", text: $order.city).submitLabel(.next)
+                TextField("Zip", text: $order.zip).submitLabel(.done)
             }
             
             Section {

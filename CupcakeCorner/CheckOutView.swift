@@ -13,6 +13,9 @@ struct CheckOutView: View {
     @State private var confirmationMessage = ""
     @State private var showingConfirmation = false
     
+    @State private var errorMessage = ""
+    @State private var showError = false
+    
     var body: some View {
         ScrollView {
             AsyncImage(url: URL(string: "https://hws.dev/img/cupcakes@3x.jpg"), scale: 3) { image in
@@ -41,6 +44,10 @@ struct CheckOutView: View {
         } message: {
             Text(confirmationMessage)
         }
+        .alert("Chekout Failed", isPresented: $showError) {
+        } message: {
+            Text(errorMessage)
+        }
         
     }
     
@@ -50,19 +57,23 @@ struct CheckOutView: View {
             return
         }
         
-        let url = URL(string: "https://reqres.in/api/cupcakes")!
+        let url = URL(string: "https://echo.zuplo.io/my/path")!
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "POST"
         
         do {
             let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
-            let decodedOrder = try JSONDecoder().decode(Order.self, from: data)
+            
+            let decodedResponse = try JSONDecoder().decode(EchoResponse<Order>.self, from: data)
+            let decodedOrder = decodedResponse.body
             
             confirmationMessage = "Your order for \(decodedOrder.quantity)x \(Order.types[decodedOrder.type].lowercased()) cupcake is on the way!"
             showingConfirmation = true
         } catch {
             print("Checkout failed \(error.localizedDescription)")
+            errorMessage = "Some thing went wrong: \(error.localizedDescription)"
+            showError = true
         }
         
     }
